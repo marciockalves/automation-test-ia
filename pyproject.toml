@@ -1,0 +1,11 @@
+[project]
+name = "automation-test-ia"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13.0"
+dependencies = [
+    "behave>=1.3.3",
+    "pyside6>=6.10.2",
+    "tagui>=1.50.0",
+]
