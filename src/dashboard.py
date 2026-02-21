@@ -8,6 +8,7 @@ from src.components.wizard_dialog import BDDWizard
 
 
 
+
 class BDDDashboard:
     def __init__(self, page: ft.Page):
         self.page = page
@@ -33,18 +34,27 @@ class BDDDashboard:
             files = sorted([f for f in os.listdir("features") if f.endswith(".feature")])
             for file in files:
                 if file.endswith(".feature"):
-                    self.grid.controls.append(TestCard(file, file, self.show_details))
+                     self.grid.controls.append(TestCard(file, file, self.show_details))
+                   
         self.page.update()
 
     def open_wizard(self, e):
         def handle_save(name, steps):
+            # Lógica de geração
             gen = BDDGenerator(name, steps)
             gen.create_structure()
             gen.generate_all()
+            
+            # FECHAMENTO SEGURO
+            wizard.open = False
+            self.page.update()
             self.refresh()
 
+        # Instancia o Wizard
         wizard = BDDWizard(on_save_callback=handle_save)
-        self.page.dialog = wizard
+        
+        # O SEGREDO: Adicionar ao overlay antes de abrir
+        self.page.overlay.append(wizard)
         wizard.open = True
         self.page.update()
 

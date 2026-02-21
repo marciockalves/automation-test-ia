@@ -63,3 +63,8 @@ class BDDGenerator:
         with open(path, "w", encoding="utf-8") as f:
             f.write("\n".join(content))
         return path
+    def generate_all(self):
+        """Atalho para gerar os dois arquivos necessários de uma só vez."""
+        feature_path = self.generate_feature_file()
+        steps_path = self.generate_step_file()
+        return feature_path, steps_path

@@ -18,7 +18,7 @@ class TestCard(ft.Container):
         ])
         self.bgcolor = ft.Colors.WHITE
         self.padding = 20
-        self.border_radius = 12
+        self.border_radius = 8
         self.shadow = ft.BoxShadow(
             blur_radius=10, 
             color=ft.Colors.with_opacity(0.1, ft.Colors.BLACK)
