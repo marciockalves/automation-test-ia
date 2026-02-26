@@ -2,4 +2,4 @@
 Funcionalidade: Teste do Teste
 
   Cenário: Teste do Teste Automatizado
-    Então abre a página do teste
+    Então abre somente a página do teste
