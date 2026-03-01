@@ -159,18 +159,46 @@ class ApplicationBoard(QMainWindow):
             QMessageBox.warning(self, "Aviso", "Selecione um arquivo .feature antes de executar.")
             return
 
-        feature_dir = os.path.dirname(self.current_feature_path)
-        execution_path = os.path.dirname(feature_dir)
-        command = f'behave "{self.current_feature_path}"'
+        # 1. Identifica o diretório e o nome base do arquivo
+        folder_path = os.path.dirname(self.current_feature_path)
+        filename = os.path.basename(self.current_feature_path).replace(".feature", "")
+        
+        # 2. Define o caminho do script de teste que o BDDForm gerou
+        # O BDDForm salva como 'test_nome.py' na mesma pasta
+        python_test_path = os.path.join(folder_path, f"test_{filename}.py")
+
+        if not os.path.exists(python_test_path):
+            QMessageBox.warning(self, "Aviso", f"Script de execução não encontrado:\n{python_test_path}")
+            return
+
+        # 3. Define o comando para rodar via UV (usando pytest que é melhor para Playwright)
+        # Se quiser rodar via Behave no futuro, o comando mudaria, 
+        # mas o Codegen gera scripts feitos para Pytest/Python puro.
+        command = f'uv run pytest "{python_test_path}"'
 
         try:
-            if sys.platform == "win32":
-                subprocess.Popen(['start', 'cmd', '/k', f'cd /d "{execution_path}" && {command}'], shell=True)
+            # Comando para Linux (Fedora)
+            if sys.platform != "win32":
+                # Tenta abrir o console do sistema para mostrar a execução
+                # No Fedora, gnome-terminal é o padrão, mas xterm ou desktop-specific funcionam
+                subprocess.Popen([
+                    'gnome-terminal', '--', 'sh', '-c', 
+                    f'cd "{folder_path}" && {command}; exec $SHELL'
+                ])
             else:
-                subprocess.Popen(['x-terminal-emulator', '-e', f'sh -c "cd {execution_path} && {command}; exec sh"'])
+                # Comando para Windows
+                subprocess.Popen([
+                    'start', 'cmd', '/k', 
+                    f'cd /d "{folder_path}" && {command}'
+                ], shell=True)
+                
         except Exception as e:
-            QMessageBox.critical(self, "Erro de Execução", f"Erro: {e}")
-
+            # Fallback caso não encontre um terminal específico (roda em background e loga erro)
+            try:
+                subprocess.Popen(f'cd "{folder_path}" && {command}', shell=True)
+                QMessageBox.information(self, "Execução", "Teste iniciado em background.")
+            except:
+                QMessageBox.critical(self, "Erro de Execução", f"Não foi possível abrir o terminal: {e}")
     def refresh_and_show_editor(self):
         self.file_model.setRootPath("") 
         self.file_model.setRootPath(os.path.join(os.getcwd(), "automation"))
